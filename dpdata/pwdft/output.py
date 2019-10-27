@@ -1,4 +1,5 @@
 import numpy as np
+from pprint import pprint
 from dpdata.periodic_table import Element
 
 def system_info (lines, type_idx_zero = False) :
@@ -16,7 +17,7 @@ def system_info (lines, type_idx_zero = False) :
   
     for ii in lines: 
         if 'Super cell' in ii : 
-            _ii=[float(k) for k in ii.split('=')[-1].split()]
+            _ii=[float(k)*0.52917721067 for k in ii.split('=')[-1].split()]
             cell=[[_ii[0],0,0],[0,_ii[1],0],[0,0,_ii[2]]]
         elif ii.strip().startswith('SCF Outer MaxIter'):
             scf_miter = int(ii.split('=')[-1])
@@ -92,11 +93,13 @@ def get_frames (fname, begin = 0, step = 1) :
 
     cc = 0
     while len(blk) > 0 :
+        #print("-"*20+str(cc)+'-'*20)
         if cc >= begin and (cc - begin) % step == 0 :
             if cc==0:
                 coord, _cell, energy, force, virial, is_converge = analyze_block(blk, ret, md, first_blk=True)
             else:
                 coord, _cell, energy, force, virial, is_converge = analyze_block(blk, ret, md, first_blk=False)
+            #pprint(coord)
             if is_converge : 
                 if len(coord) == 0:
                     break
@@ -119,7 +122,7 @@ def get_frames (fname, begin = 0, step = 1) :
     else :
         all_virials = np.array(all_virials)
     fp.close()
-    return atom_names, atom_numbs, atom_types, np.array(all_cells), np.array(all_coords), np.array(all_energies), np.array(all_forces), all_virials
+    return atom_names, atom_numbs, np.array(atom_types), np.array(all_cells), np.array(all_coords), np.array(all_energies), np.array(all_forces), all_virials
 
 
 def analyze_block(lines, ret, md, first_blk=False,hydrid=True) :
@@ -160,12 +163,14 @@ def analyze_block(lines, ret, md, first_blk=False,hydrid=True) :
 
         elif '! Etot' in ii:
             if 'au' in ii:
-                energy = float(ii.split()[3])*27.21138602  
+                energy = float(ii.split()[3])*27.211386020632837
             else:
                 energy = float(ii.split()[3])
 
-        elif ii.strip().startswith('Type ='):
-            coord.append([float(i) for i in ii.split('=')[-1].split()])
+        elif ii.strip().startswith('Type =') and 'Position' in ii:
+            coord.append([float(i)*0.52917721067 for i in ii.split('=')[-1].split()])
+        elif ii.strip().startswith('Type =') and 'Pos' in ii and 'Vel' in ii:
+            coord.append([float(i)*0.52917721067 for i in ii.split()[5:8]])
 
         elif ii.startswith('atom') and 'force' in ii:
            force.append([float(i)*27.211386020632837/0.52917721067 for i in ii.split()[-3:]])
@@ -200,4 +205,4 @@ def analyze_block(lines, ret, md, first_blk=False,hydrid=True) :
 if __name__=='__main__':
   import sys
   ret=get_frames (sys.argv[1], begin = 0, step = 1)
-  print(ret)
+  #print(ret)
