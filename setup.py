@@ -26,7 +26,7 @@ setuptools.setup(
     url="https://github.com/deepmodeling/dpdata",
     packages=['dpdata', 'dpdata/vasp', 'dpdata/lammps', 'dpdata/md', 'dpdata/deepmd', 
              'dpdata/qe', 'dpdata/siesta', 'dpdata/gaussian', 'dpdata/cp2k',
-             'dpdata/pwdft'],
+             'dpdata/pwdft','dpdata/fhi_aims'],
     package_data={'dpdata':['*.json']},
     classifiers=[
         "Programming Language :: Python :: 3.6",

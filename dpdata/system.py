@@ -15,6 +15,7 @@ import dpdata.md.pbc
 import dpdata.gaussian.log
 import dpdata.cp2k.output
 import dpdata.pwdft.output
+import dpdata.fhi_aims.output
 from copy import deepcopy
 from monty.json import MSONable
 from monty.serialization import loadfn,dumpfn
@@ -664,6 +665,8 @@ class LabeledSystem (System):
             self.from_cp2k_output(file_name)
         elif fmt == 'pwdft/output':
             self.from_pwdft_output(file_name)
+        elif fmt == 'fhi_aims/output':
+            self.from_fhi_aims_output(file_name)
         else :
             raise RuntimeError('unknow data format ' + fmt)
 
@@ -731,22 +734,6 @@ class LabeledSystem (System):
         # rotate the system to lammps convention
         self.rot_lower_triangular()
 
-
-    def from_pwdft_output(self, file_name, begin=0, step =1):
-        self.data['atom_names'], \
-            self.data['atom_numbs'], \
-            self.data['atom_types'], \
-            self.data['cells'], \
-            self.data['coords'], \
-            self.data['energies'], \
-            self.data['forces'], \
-            tmp_virial, \
-            = dpdata.pwdft.output.get_frames(file_name, begin = begin, step = step)
-        if tmp_virial is not None :
-            self.data['virials'] = tmp_virial
-        # rotate the system to lammps convention
-        self.rot_lower_triangular()
- 
     def from_vasp_outcar(self, file_name, begin = 0, step = 1) :
         # with open(file_name) as fp:
         #     lines = [line.rstrip('\n') for line in fp]
@@ -861,6 +848,36 @@ class LabeledSystem (System):
             self.data['forces'], \
             = dpdata.cp2k.output.get_frames(file_name)
 
+    def from_fhi_aims_output(self, file_name, begin=0, step =1):
+        self.data['atom_names'], \
+            self.data['atom_numbs'], \
+            self.data['atom_types'], \
+            self.data['cells'], \
+            self.data['coords'], \
+            self.data['energies'], \
+            self.data['forces'], \
+            tmp_virial, \
+            = dpdata.fhi_aims.output.get_frames(file_name, begin = begin, step = step)
+        if tmp_virial is not None :
+            self.data['virials'] = tmp_virial
+        # rotate the system to lammps convention
+        #self.rot_lower_triangular()
+
+    def from_pwdft_output(self, file_name, begin=0, step =1):
+        self.data['atom_names'], \
+            self.data['atom_numbs'], \
+            self.data['atom_types'], \
+            self.data['cells'], \
+            self.data['coords'], \
+            self.data['energies'], \
+            self.data['forces'], \
+            tmp_virial, \
+            = dpdata.pwdft.output.get_frames(file_name, begin = begin, step = step)
+        if tmp_virial is not None :
+            self.data['virials'] = tmp_virial
+        # rotate the system to lammps convention
+        self.rot_lower_triangular()
+ 
 
     def sub_system(self, f_idx) :
         """
