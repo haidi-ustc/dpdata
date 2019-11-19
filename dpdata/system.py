@@ -665,8 +665,10 @@ class LabeledSystem (System):
             self.from_cp2k_output(file_name)
         elif fmt == 'pwdft/output':
             self.from_pwdft_output(file_name)
-        elif fmt == 'fhi_aims/output':
-            self.from_fhi_aims_output(file_name)
+        elif fmt == 'fhi_aims/md':
+            self.from_fhi_aims_output(file_name, md=True, begin = begin, step = step)
+        elif fmt == 'fhi_aims/scf':
+            self.from_fhi_aims_output(file_name, md=False, begin = begin, step = step)
         else :
             raise RuntimeError('unknow data format ' + fmt)
 
@@ -848,7 +850,7 @@ class LabeledSystem (System):
             self.data['forces'], \
             = dpdata.cp2k.output.get_frames(file_name)
 
-    def from_fhi_aims_output(self, file_name, begin=0, step =1):
+    def from_fhi_aims_output(self, file_name, md=True, begin=0, step =1):
         self.data['atom_names'], \
             self.data['atom_numbs'], \
             self.data['atom_types'], \
@@ -857,7 +859,7 @@ class LabeledSystem (System):
             self.data['energies'], \
             self.data['forces'], \
             tmp_virial, \
-            = dpdata.fhi_aims.output.get_frames(file_name, begin = begin, step = step)
+            = dpdata.fhi_aims.output.get_frames(file_name, md = md, begin = begin, step = step)
         if tmp_virial is not None :
             self.data['virials'] = tmp_virial
         # rotate the system to lammps convention

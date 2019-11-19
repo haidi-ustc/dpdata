@@ -2,7 +2,7 @@ import numpy as np
 import re
 
 latt_patt="\|\s+([0-9]{1,}[.][0-9]*)\s+([0-9]{1,}[.][0-9]*)\s+([0-9]{1,}[.][0-9]*)"
-pos_patt_first="\|\s+[0-9]{1,}[:]\s\w+\s(\w+)\s.*([-]?[0-9]{1,}[.][0-9]*)\s+([-]?[0-9]{1,}[.][0-9]*)\s+([-]?[0-9]{1,}[.][0-9]*)"
+pos_patt_first="\|\s+[0-9]{1,}[:]\s\w+\s(\w+)(\s.*[-]?[0-9]{1,}[.][0-9]*)(\s+[-]?[0-9]{1,}[.][0-9]*)(\s+[-]?[0-9]{1,}[.][0-9]*)"
 pos_patt_other="\s+[a][t][o][m]\s+([-]?[0-9]{1,}[.][0-9]*)\s+([-]?[0-9]{1,}[.][0-9]*)\s+([-]?[0-9]{1,}[.][0-9]*)\s+(\w{1,2})"
 force_patt="\|\s+[0-9]{1,}\s+([-]?[0-9]{1,}[.][0-9]*[E][+-][0-9]{1,})\s+([-]?[0-9]{1,}[.][0-9]*[E][+-][0-9]{1,})\s+([-]?[0-9]{1,}[.][0-9]*[E][+-][0-9]{1,})"
 eng_patt="Total energy uncorrected.*([-]?[0-9]{1,}[.][0-9]*[E][+-][0-9]{1,})\s+eV"
@@ -56,7 +56,7 @@ def get_fhi_aims_block(fp) :
             return blk
     return blk
 
-def get_frames (fname, begin = 0, step = 1) :
+def get_frames (fname, md=True, begin = 0, step = 1) :
     fp = open(fname)
     blk = get_fhi_aims_block(fp)
     ret = get_info(blk, type_idx_zero = True)
@@ -72,11 +72,11 @@ def get_frames (fname, begin = 0, step = 1) :
 
     cc = 0
     while len(blk) > 0 :
-#        with open(str(cc),'w') as f:
-#             f.write('\n'.join(blk))
+     #   with open(str(cc),'w') as f:
+     #        f.write('\n'.join(blk))
         if cc >= begin and (cc - begin) % step == 0 :
             if cc==0:
-                coord, _cell, energy, force, virial, is_converge = analyze_block(blk, first_blk=True)
+                coord, _cell, energy, force, virial, is_converge = analyze_block(blk, first_blk=True, md=md)
             else:
                 coord, _cell, energy, force, virial, is_converge = analyze_block(blk, first_blk=False)
             if is_converge : 
@@ -104,7 +104,7 @@ def get_frames (fname, begin = 0, step = 1) :
     return atom_names, atom_numbs, np.array(atom_types), np.array(all_cells), np.array(all_coords), np.array(all_energies), np.array(all_forces), all_virials
 
 
-def analyze_block(lines, first_blk=False) :
+def analyze_block(lines, first_blk=False, md=True) :
     coord = []
     cell = []
     energy = None
@@ -114,11 +114,21 @@ def analyze_block(lines, first_blk=False) :
     _atom_names=[]
 
     contents="\n".join(lines)
+    try:
+       natom=int(re.findall("Number of atoms.*([0-9]{1,})",lines)[0])
+    except:
+       natom=0
 
     if first_blk:
-       _tmp=re.findall(pos_patt_first,contents)
-       for ii in _tmp:
-           coord.append([float(kk) for kk in ii[1:]])
+
+       if md:
+          _tmp=re.findall(pos_patt_other,contents)[:]
+          for ii in _tmp[slice(int(len(_tmp)/2),len(_tmp))]:
+              coord.append([float(kk) for kk in ii[:-1]])
+       else:
+          _tmp=re.findall(pos_patt_first,contents)
+          for ii in _tmp:
+              coord.append([float(kk) for kk in ii[1:]])
     else:
        _tmp=re.findall(pos_patt_other,contents)
        for ii in _tmp:

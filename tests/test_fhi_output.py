@@ -67,7 +67,7 @@ class TestFhi_aims:
 class TestFhiOutput(unittest.TestCase, TestFhi_aims):
 
     def setUp(self):
-        self.system = dpdata.LabeledSystem('fhi_aims/out_scf', fmt = 'fhi_aims/output')
+        self.system = dpdata.LabeledSystem('fhi_aims/out_scf', fmt = 'fhi_aims/scf')
 
 if __name__ == '__main__':
     unittest.main()
