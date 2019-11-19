@@ -46,19 +46,19 @@ def get_info (lines, type_idx_zero = False) :
     return [cell, atom_numbs, atom_names, atom_types ]
 
 
-def get_pwdft_block(fp) :
+def get_fhi_aims_block(fp) :
     blk = []
     for ii in fp :
         if not ii :
             return blk
         blk.append(ii.rstrip('\n'))
-        if 'Molecular dynamics: Attempting to update' in ii:
+        if 'Begin self-consistency loop: Re-initialization' in ii:
             return blk
     return blk
 
 def get_frames (fname, begin = 0, step = 1) :
     fp = open(fname)
-    blk = get_pwdft_block(fp)
+    blk = get_fhi_aims_block(fp)
     ret = get_info(blk, type_idx_zero = True)
 
     cell, atom_numbs, atom_names, atom_types =ret[0],ret[1],ret[2],ret[3]
@@ -72,6 +72,8 @@ def get_frames (fname, begin = 0, step = 1) :
 
     cc = 0
     while len(blk) > 0 :
+#        with open(str(cc),'w') as f:
+#             f.write('\n'.join(blk))
         if cc >= begin and (cc - begin) % step == 0 :
             if cc==0:
                 coord, _cell, energy, force, virial, is_converge = analyze_block(blk, first_blk=True)
@@ -91,7 +93,7 @@ def get_frames (fname, begin = 0, step = 1) :
                 all_forces.append(force)
                 if virial is not None :
                     all_virials.append(virial)
-        blk = get_pwdft_block(fp)
+        blk = get_fhi_aims_block(fp)
         cc += 1
         
     if len(all_virials) == 0 :
