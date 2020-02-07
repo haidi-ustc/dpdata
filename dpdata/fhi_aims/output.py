@@ -17,10 +17,19 @@ def get_info (lines, type_idx_zero = False) :
     _atom_names = []
 
     contents="\n".join(lines)
-    #cell
-    _tmp=re.findall(latt_patt,contents)
+    #cell   seems re is not safe
+    #_tmp=re.findall(latt_patt,contents)
+    #for ii in _tmp:
+    #    vect=[float(kk) for kk in ii]
+    #    cell.append(vect)
+    try:
+        ln=lines.index('  | Unit cell: ')
+    except:
+        raise RuntimeError('Can not find Unit cell info.')
+    _tmp=lines[ln+1:ln+4]
     for ii in _tmp:
-        vect=[float(kk) for kk in ii]
+        v_str=ii.split('|')[1].split()
+        vect=[float(kk) for kk in v_str]
         cell.append(vect)
    # print(cell)
     #atom name
@@ -72,8 +81,8 @@ def get_frames (fname, begin = 0, step = 1) :
 
     cc = 0
     while len(blk) > 0 :
-#        with open(str(cc),'w') as f:
-#             f.write('\n'.join(blk))
+        with open(str(cc),'w') as f:
+             f.write('\n'.join(blk))
         if cc >= begin and (cc - begin) % step == 0 :
             if cc==0:
                 coord, _cell, energy, force, virial, is_converge = analyze_block(blk, first_blk=True)

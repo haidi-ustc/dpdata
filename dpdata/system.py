@@ -3,6 +3,7 @@ import numpy as np
 import dpdata.lammps.lmp
 import dpdata.lammps.dump
 import dpdata.vasp.poscar
+import dpdata.vasp.md_xyz
 import dpdata.vasp.xml
 import dpdata.vasp.outcar
 import dpdata.deepmd.raw
@@ -486,6 +487,22 @@ class System (MSONable) :
         tmp_data = dpdata.deepmd.raw.to_system_data(folder, type_map = type_map, labels = False)
         if tmp_data is not None :
             self.data = tmp_data
+
+    def to_MD310_xyz(self,file_name):
+
+        """
+        Dump the system in vasp POSCAR format
+
+        Parameters
+        ----------
+        file_name : str
+            The output file name
+        frame_idx : int
+            The index of the frame to dump
+        """
+        w_str = dpdata.vasp.md_xyz.from_system_data(self)
+        with open(file_name, 'w') as fp:
+            fp.write(w_str)
 
     def to_deepmd_npy(self, folder, set_size = 5000, prec=np.float32) :
         """
