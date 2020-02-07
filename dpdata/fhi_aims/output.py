@@ -18,9 +18,18 @@ def get_info (lines, type_idx_zero = False) :
 
     contents="\n".join(lines)
     #cell
-    _tmp=re.findall(latt_patt,contents)
+    #_tmp=re.findall(latt_patt,contents)
+    #for ii in _tmp:
+    #    vect=[float(kk) for kk in ii]
+    #    cell.append(vect)
+    #------------------
+    for ln,l in enumerate(lines):
+        if l.startswith('  | Unit cell'):
+            break
+    _tmp=lines[ln+1:ln+4]
     for ii in _tmp:
-        vect=[float(kk) for kk in ii]
+        v_str=ii.split('|')[1].split()
+        vect=[float(kk) for kk in v_str]
         cell.append(vect)
    # print(cell)
     #atom name
