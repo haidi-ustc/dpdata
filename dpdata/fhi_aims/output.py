@@ -17,15 +17,21 @@ def get_info (lines, type_idx_zero = False) :
     _atom_names = []
 
     contents="\n".join(lines)
+    #------------------
     #cell   seems re is not safe
     #_tmp=re.findall(latt_patt,contents)
     #for ii in _tmp:
     #    vect=[float(kk) for kk in ii]
     #    cell.append(vect)
-    try:
-        ln=lines.index('  | Unit cell:')
-    except:
-        raise RuntimeError('Can not find Unit cell info.')
+    #------------------
+    #try:
+    #    ln=lines.index('  | Unit cell:')
+    #except:
+    #    raise RuntimeError('Can not find Unit cell info.')
+    #------------------
+    for ln,l in enumerate(lines):
+        if l.startswith('  | Unit cell'):
+            break
     _tmp=lines[ln+1:ln+4]
     for ii in _tmp:
         v_str=ii.split('|')[1].split()
