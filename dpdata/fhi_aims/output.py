@@ -23,7 +23,7 @@ def get_info (lines, type_idx_zero = False) :
     #    vect=[float(kk) for kk in ii]
     #    cell.append(vect)
     try:
-        ln=lines.index('  | Unit cell: ')
+        ln=lines.index('  | Unit cell:')
     except:
         raise RuntimeError('Can not find Unit cell info.')
     _tmp=lines[ln+1:ln+4]
