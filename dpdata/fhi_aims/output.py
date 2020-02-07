@@ -81,8 +81,8 @@ def get_frames (fname, begin = 0, step = 1) :
 
     cc = 0
     while len(blk) > 0 :
-        with open(str(cc),'w') as f:
-             f.write('\n'.join(blk))
+#        with open(str(cc),'w') as f:
+#             f.write('\n'.join(blk))
         if cc >= begin and (cc - begin) % step == 0 :
             if cc==0:
                 coord, _cell, energy, force, virial, is_converge = analyze_block(blk, first_blk=True)
